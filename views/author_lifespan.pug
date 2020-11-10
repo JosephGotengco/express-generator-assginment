@@ -1,0 +1,8 @@
+if author.date_of_birth
+	| #{author.lifespan.years} years old
+else
+	| N/A
+if author.date_of_death_formatted
+	| , deceased, #{author.date_of_death_formatted}
+if author.date_of_birth && !author.date_of_death
+	| , alive

@@ -2,6 +2,7 @@ var mongoose = require("mongoose");
 const { DateTime } = require("luxon");
 const getNumberSuffix = require("../utils/date_suffix");
 const getMonthName = require("../utils/month_name");
+const padLeft = require("../utils/pad_left");
 
 var Schema = mongoose.Schema;
 
@@ -37,6 +38,7 @@ AuthorSchema.virtual("lifespan").get(function () {
         "minutes",
         "seconds",
     ]);
+    console.log(date_diff.toObject());
     return date_diff.toObject();
 });
 
@@ -56,13 +58,38 @@ AuthorSchema.virtual("date_of_birth_formatted").get(function () {
 // Virtual for formatted date of death
 AuthorSchema.virtual("date_of_death_formatted").get(function () {
     if (this.date_of_death) {
-        const birth_datetime = DateTime.fromJSDate(this.date_of_death);
-        const month_name = getMonthName(birth_datetime.month - 1).substring(
+        const death_datetime = DateTime.fromJSDate(this.date_of_death);
+        const month_name = getMonthName(death_datetime.month - 1).substring(
             0,
             3
         );
-        const day_suffix = getNumberSuffix(birth_datetime.day);
-        return `${month_name} ${birth_datetime.day}${day_suffix}, ${birth_datetime.year}`;
+        const day_suffix = getNumberSuffix(death_datetime.day);
+        return `${month_name} ${death_datetime.day}${day_suffix}, ${death_datetime.year}`;
+    }
+});
+
+AuthorSchema.virtual("date_of_death_format_two").get(function () {
+    if (this.date_of_death) {
+        const death_datetime = DateTime.fromJSDate(this.date_of_death);
+        return `${padLeft(death_datetime.year, 4)}-${padLeft(
+            death_datetime.month,
+            2
+        )}-${padLeft(death_datetime.day, 2)}`;
+    } else {
+        return "";
+    }
+});
+
+AuthorSchema.virtual("date_of_birth_format_two").get(function () {
+    if (this.date_of_birth) {
+        console.log(this.date_of_birth);
+        const birth_datetime = DateTime.fromJSDate(this.date_of_birth);
+        return `${padLeft(birth_datetime.year, 4)}-${padLeft(
+            birth_datetime.month,
+            2
+        )}-${padLeft(birth_datetime.day, 2)}`;
+    } else {
+        return "";
     }
 });
 

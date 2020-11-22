@@ -2,6 +2,7 @@ var mongoose = require("mongoose");
 const { DateTime } = require("luxon");
 const getNumberSuffix = require("../utils/date_suffix");
 const getMonthName = require("../utils/month_name");
+const padLeft = require("../utils/pad_left");
 
 var Schema = mongoose.Schema;
 
@@ -23,18 +24,34 @@ BookInstanceSchema.virtual("url").get(function () {
 });
 
 BookInstanceSchema.virtual("due_back_formatted").get(function () {
-    const due_back_datetime = DateTime.fromJSDate(this.due_back);
-    const month_name = getMonthName(due_back_datetime.month - 1).substring(
-        0,
-        3
-    );
-    const day_suffix = getNumberSuffix(due_back_datetime.day);
-    const meridiem = due_back_datetime.hour > 12 ? "PM" : "AM";
-    const twelve_hour =
-        due_back_datetime.hour > 12
-            ? due_back_datetime.hour - 12
-            : due_back_datetime.hour;
-    return `${twelve_hour}:${due_back_datetime.minute}${meridiem} on ${month_name} ${due_back_datetime.day}${day_suffix}, ${due_back_datetime.year}`;
+    if (this.due_back) {
+        const due_back_datetime = DateTime.fromJSDate(this.due_back);
+        const month_name = getMonthName(due_back_datetime.month - 1).substring(
+            0,
+            3
+        );
+        const day_suffix = getNumberSuffix(due_back_datetime.day);
+        const meridiem = due_back_datetime.hour > 12 ? "PM" : "AM";
+        const twelve_hour =
+            due_back_datetime.hour > 12
+                ? due_back_datetime.hour - 12
+                : due_back_datetime.hour;
+        return `${twelve_hour}:${due_back_datetime.minute}${meridiem} on ${month_name} ${due_back_datetime.day}${day_suffix}, ${due_back_datetime.year}`;
+    } else {
+        return ""
+    }
+});
+
+BookInstanceSchema.virtual("due_back_format_two").get(function () {
+    if (this.due_back) {
+        const due_back_datetime = DateTime.fromJSDate(this.due_back);
+        return `${due_back_datetime.year}-${padLeft(
+            due_back_datetime.month,
+            2
+        )}-${padLeft(due_back_datetime.day, 2)}`;
+    } else {
+        return ""
+    }
 });
 
 //Export model
